@@ -24,7 +24,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # Local environment variables
-.env*.local
+.env
+.env.local
+.env.*.local
+
+# Allow example env file to be committed
+!.env.example
 
 # Vercel deployment
 .vercel

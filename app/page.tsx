@@ -51,6 +51,9 @@ const ACCESS_OPTIONS: { value: AccessLevel; label: string }[] = [
 
 export default function PriceDefenserPage(): JSX.Element {
   const [config, setConfig] = useState<JobConfiguration>(DEFAULT_CONFIG);
+  const [aiJustifications, setAiJustifications] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
   const estimate = useMemo(() => calculateJobCost(config), [config]);
 
@@ -86,6 +89,46 @@ export default function PriceDefenserPage(): JSX.Element {
 
   const resetForm = () => {
     setConfig(DEFAULT_CONFIG);
+    setAiJustifications('');
+    setError('');
+    setIsLoading(false);
+  };
+
+  const handleCalculateRiskAndPrice = async () => {
+    // 1. Run the local mathematical calculation.
+    const localEstimate = calculateJobCost(config);
+
+    // 2. Start loading state.
+    setIsLoading(true);
+    setError('');
+    setAiJustifications('');
+
+    try {
+      // 3. Call the serverless Gemini API route.
+      const response = await fetch('/api/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...config,
+          minPrice: localEstimate.minPrice,
+          maxPrice: localEstimate.maxPrice,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch AI justifications.');
+      }
+
+      // 4. Store the AI justifications.
+      setAiJustifications(data.justifications);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -105,7 +148,7 @@ export default function PriceDefenserPage(): JSX.Element {
       </header>
 
       {/* Main form */}
-      <main className="flex-1 overflow-y-auto overscroll-contain px-4 pb-40 pt-5">
+      <main className="flex-1 overflow-y-auto overscroll-contain px-4 pb-72 pt-5">
         {/* Step 1: Size & Mass */}
         <section className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
           <h2 className="mb-4 text-lg font-bold text-white">Step 1: Size & Mass</h2>
@@ -282,9 +325,44 @@ export default function PriceDefenserPage(): JSX.Element {
           <p className="mb-1 text-base font-semibold text-neutral-300">
             Defensible Price Range:
           </p>
-          <p className="break-words text-4xl font-black text-white sm:text-5xl">
+          <p className="mb-5 break-words text-4xl font-black text-white sm:text-5xl">
             {`$${estimate.minPrice.toLocaleString('en-US')}`} – {`$${estimate.maxPrice.toLocaleString('en-US')}`}
           </p>
+
+          {isLoading ? (
+            <div className="flex items-center gap-3 rounded-xl bg-neutral-700 px-5 py-4">
+              <span className="inline-block h-6 w-6 animate-pulse rounded-full bg-blue-400" />
+              <span className="text-base font-semibold text-white">
+                AI Analyzing Risk Factors…
+              </span>
+            </div>
+          ) : error ? (
+            <div className="rounded-xl bg-red-900/40 px-5 py-4 text-base font-semibold text-red-200">
+              {error}
+            </div>
+          ) : aiJustifications ? (
+            <div className="rounded-xl bg-neutral-700 px-5 py-4">
+              <h3 className="mb-3 text-base font-bold text-white">AI Risk Justifications</h3>
+              <div className="space-y-3 text-base leading-relaxed text-neutral-100">
+                {aiJustifications
+                  .split('\n')
+                  .filter((line) => line.trim().length > 0)
+                  .map((line, index) => (
+                    <p key={index} className="pl-2">
+                      {line.startsWith('•') ? line : `• ${line}`}
+                    </p>
+                  ))}
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleCalculateRiskAndPrice}
+              className="w-full rounded-xl bg-blue-600 px-5 py-4 text-lg font-bold text-white shadow-md active:bg-blue-500"
+            >
+              Calculate Risk & Price
+            </button>
+          )}
         </div>
       </div>
     </div>
