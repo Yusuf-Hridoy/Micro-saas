@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export interface QuoteRequestBody {
   treeSize: number;
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
+      console.error('GEMINI_API_KEY is not set in environment variables');
       return NextResponse.json(
         {
           error: 'Gemini API key is missing. Server configuration is incomplete.',
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 500 }
       );
     }
+
 
     const prompt = `You are a master arborist insurance adjuster and pricing risk actuary. The user is bidding on a job with these specs:
 - Size: ${treeSize} inches in diameter
@@ -44,18 +46,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 Based on these risks, generate exactly 3 powerful, authoritative, professional bullet points that the arborist can read or show directly to the homeowner to justify why this specific job commands this price premium. Focus on safety factors, advanced rigging equipment required, precision climbing liabilities, and potential property damage prevention. Keep it completely factual, objective, and clear. Do not include any introductory sentences or concluding text. Return ONLY the 3 bullet points.`;
 
-    const ai = new GoogleGenAI({ apiKey });
+    const modelName = 'gemini-2.5-flash';
+    console.log('Calling Gemini with model:', modelName);
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
 
-    const textResponse = response.text ?? '';
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const textResponse = response.text();
+
+    console.log('Gemini response received successfully');
 
     return NextResponse.json({ justifications: textResponse });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error occurred';
+    // Log the full error server-side for debugging.
+    console.error('Gemini API error:', error);
+
+    let message = 'Unknown error occurred';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
+    // Try to extract Google API error details if present.
+    const googleError = error as { message?: string; response?: { data?: unknown } };
+    if (googleError?.message) {
+      console.error('Error message:', googleError.message);
+    }
+    if (googleError?.response?.data) {
+      console.error('Google API error data:', JSON.stringify(googleError.response.data, null, 2));
+    }
+
     return NextResponse.json(
       { error: 'Failed to generate justifications.', details: message },
       { status: 500 }

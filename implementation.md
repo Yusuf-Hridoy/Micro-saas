@@ -21,7 +21,7 @@ This document records the implementation steps, architecture decisions, and veri
 | Styling | Tailwind CSS 3.4 |
 | State | React `useState` with centralized `JobConfiguration` object |
 | Logic | Pure client-side JavaScript/TypeScript |
-| AI Justifications | Google Gen AI SDK (`@google/genai`) via Next.js API Route |
+| AI Justifications | Google Gen AI SDK (`@google/generative-ai`) via Next.js API Route using `gemini-2.5-flash` |
 | Testing | Jest + ts-jest |
 | Linting | ESLint (Next.js core-web-vitals config) |
 

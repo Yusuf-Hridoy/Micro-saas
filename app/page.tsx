@@ -94,6 +94,13 @@ export default function PriceDefenserPage(): JSX.Element {
     setIsLoading(false);
   };
 
+  function parseJustifications(text: string): string[] {
+    return text
+      .split('\n')
+      .map((line) => line.replace(/^[\s*•\-\d.]+/, '').trim())
+      .filter((line) => line.length > 0);
+  }
+
   const handleCalculateRiskAndPrice = async () => {
     // 1. Run the local mathematical calculation.
     const localEstimate = calculateJobCost(config);
@@ -132,9 +139,9 @@ export default function PriceDefenserPage(): JSX.Element {
   };
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-neutral-950">
+    <div className="flex min-h-screen flex-col bg-neutral-950">
       {/* Header */}
-      <header className="flex shrink-0 items-center justify-between bg-neutral-900 px-4 py-4 shadow-lg">
+      <header className="sticky top-0 z-10 flex shrink-0 items-center justify-between bg-neutral-900 px-4 py-4 shadow-lg">
         <h1 className="text-xl font-bold tracking-tight text-white">
           🌳 Price Defenser Pro
         </h1>
@@ -148,7 +155,7 @@ export default function PriceDefenserPage(): JSX.Element {
       </header>
 
       {/* Main form */}
-      <main className="flex-1 overflow-y-auto overscroll-contain px-4 pb-72 pt-5">
+      <main className="flex-1 overflow-y-auto scroll-smooth px-4 pb-6 pt-5">
         {/* Step 1: Size & Mass */}
         <section className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
           <h2 className="mb-4 text-lg font-bold text-white">Step 1: Size & Mass</h2>
@@ -216,23 +223,34 @@ export default function PriceDefenserPage(): JSX.Element {
                   type="button"
                   onClick={() => toggleHazard(option.value)}
                   className={[
-                    'flex items-center justify-between rounded-xl px-5 py-5 text-left text-lg font-bold transition-colors',
+                    'flex items-center justify-between rounded-xl px-5 py-5 text-left text-lg font-bold transition-all',
                     active
-                      ? 'bg-orange-600 text-white shadow-md'
+                      ? 'bg-orange-600 text-white shadow-md ring-2 ring-white/40'
                       : 'bg-neutral-800 text-neutral-300 active:bg-neutral-700',
                   ].join(' ')}
                 >
                   <span>{option.label}</span>
                   <span
                     className={[
-                      'flex h-8 w-8 items-center justify-center rounded-full border-2 text-base',
+                      'flex h-8 w-8 items-center justify-center rounded-full text-base',
                       active
-                        ? 'border-white bg-white text-orange-600'
-                        : 'border-neutral-500 text-transparent',
+                        ? 'bg-white text-orange-600'
+                        : 'border-2 border-neutral-500 text-transparent',
                     ].join(' ')}
                     aria-hidden="true"
                   >
-                    ✓
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M20.707 6.707a1 1 0 0 0-1.414-1.414L9 15.586 4.707 11.293a1 1 0 0 0-1.414 1.414l5 5a1 1 0 0 0 1.414 0l11-11Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </span>
                 </button>
               );
@@ -252,23 +270,34 @@ export default function PriceDefenserPage(): JSX.Element {
                   type="button"
                   onClick={() => toggleHealthIssue(option.value)}
                   className={[
-                    'flex items-center justify-between rounded-xl px-5 py-5 text-left text-lg font-bold transition-colors',
+                    'flex items-center justify-between rounded-xl px-5 py-5 text-left text-lg font-bold transition-all',
                     active
-                      ? 'bg-amber-600 text-white shadow-md'
+                      ? 'bg-amber-600 text-white shadow-md ring-2 ring-white/40'
                       : 'bg-neutral-800 text-neutral-300 active:bg-neutral-700',
                   ].join(' ')}
                 >
                   <span>{option.label}</span>
                   <span
                     className={[
-                      'flex h-8 w-8 items-center justify-center rounded-full border-2 text-base',
+                      'flex h-8 w-8 items-center justify-center rounded-full text-base',
                       active
-                        ? 'border-white bg-white text-amber-600'
-                        : 'border-neutral-500 text-transparent',
+                        ? 'bg-white text-amber-600'
+                        : 'border-2 border-neutral-500 text-transparent',
                     ].join(' ')}
                     aria-hidden="true"
                   >
-                    ✓
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M20.707 6.707a1 1 0 0 0-1.414-1.414L9 15.586 4.707 11.293a1 1 0 0 0-1.414 1.414l5 5a1 1 0 0 0 1.414 0l11-11Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </span>
                 </button>
               );
@@ -303,8 +332,8 @@ export default function PriceDefenserPage(): JSX.Element {
       </main>
 
       {/* Dynamic Results Widget */}
-      <div className="fixed inset-x-0 bottom-0 border-t border-neutral-800 bg-neutral-900 p-4 shadow-2xl">
-        <div className="rounded-2xl bg-neutral-800 p-5">
+      <div className="relative w-full px-4 pb-6">
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 shadow-xl">
           <div className="mb-3 flex items-center justify-between">
             <span
               className={[
@@ -343,16 +372,11 @@ export default function PriceDefenserPage(): JSX.Element {
           ) : aiJustifications ? (
             <div className="rounded-xl bg-neutral-700 px-5 py-4">
               <h3 className="mb-3 text-base font-bold text-white">AI Risk Justifications</h3>
-              <div className="space-y-3 text-base leading-relaxed text-neutral-100">
-                {aiJustifications
-                  .split('\n')
-                  .filter((line) => line.trim().length > 0)
-                  .map((line, index) => (
-                    <p key={index} className="pl-2">
-                      {line.startsWith('•') ? line : `• ${line}`}
-                    </p>
-                  ))}
-              </div>
+              <ul className="list-disc space-y-4 pl-5 text-base leading-relaxed text-neutral-100">
+                {parseJustifications(aiJustifications).map((line, index) => (
+                  <li key={index}>{line}</li>
+                ))}
+              </ul>
             </div>
           ) : (
             <button
