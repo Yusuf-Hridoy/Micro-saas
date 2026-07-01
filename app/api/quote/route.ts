@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { checkRateLimit } from '@vercel/firewall';
 
 export interface QuoteRequestBody {
   treeSize: number;
@@ -12,6 +13,30 @@ export interface QuoteRequestBody {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Firewall guardrail: enforce the Vercel WAF rate-limit rule tied to this
+  // endpoint. The rule (configured in the Vercel dashboard with the matching
+  // rate limit ID) defaults to the client IP address when no custom key is
+  // supplied, giving us a per-user/per-IP daily quota.
+  try {
+    const { rateLimited } = await checkRateLimit('driveway-quote-daily-limit', {
+      request,
+    });
+
+    if (rateLimited) {
+      return NextResponse.json(
+        {
+          error:
+            'Daily driveway quota reached (5 requests/day). Please try again tomorrow.',
+        },
+        { status: 429 }
+      );
+    }
+  } catch (rateLimitError) {
+    // Fail open if the firewall service is unreachable or the rule is not yet
+    // configured, but log loudly so the issue is visible.
+    console.error('Vercel Firewall rate-limit check failed:', rateLimitError);
+  }
+
   try {
     const body: QuoteRequestBody = await request.json();
 
