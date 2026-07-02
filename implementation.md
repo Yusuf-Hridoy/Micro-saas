@@ -1,12 +1,12 @@
-# Arborist Price Defenser — Implementation Log
+# Arborist Price Defender — Implementation Log
 
-This document records the implementation steps, architecture decisions, and verification status for the **Arborist Price Defenser** Progressive Web App (PWA).
+This document records the implementation steps, architecture decisions, and verification status for the **Arborist Price Defender** Progressive Web App (PWA).
 
 ---
 
 ## 1. Project Overview
 
-**Product:** Arborist Price Defenser Pro  
+**Product:** Arborist Price Defender Pro  
 **Purpose:** A mobile-first pricing calculator for tree service operators to estimate high-stakes job pricing live on-site.  
 **Current Phase:** Phase 1 (client-side logic + mobile UI prototype), Phase 2 (logic isolation + unit testing), and Phase 3 (Gemini API integration via serverless route) are complete.
 

@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { checkRateLimit } from '@vercel/firewall';
+import { calculatePrice, type JobConfiguration } from '@/utils/pricingEngine';
 
-export interface QuoteRequestBody {
-  treeSize: number;
-  woodDensity: 'softwood' | 'hardwood' | 'brittle';
-  hazards: string[];
-  treeHealth: string[];
-  accessLevel: 'easy' | 'climbing_only';
-  minPrice: number;
-  maxPrice: number;
-}
+export interface QuoteRequestBody extends JobConfiguration {}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // Firewall guardrail: enforce the Vercel WAF rate-limit rule tied to this
@@ -42,12 +35,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const {
       treeSize,
+      treeHeight,
       woodDensity,
       hazards,
       treeHealth,
-      minPrice,
-      maxPrice,
+      accessLevel,
+      addOns,
     } = body;
+
+    const estimate = calculatePrice({
+      treeSize,
+      treeHeight: treeHeight ?? 30,
+      woodDensity,
+      hazards: hazards as JobConfiguration['hazards'],
+      treeHealth: treeHealth as JobConfiguration['treeHealth'],
+      accessLevel,
+      addOns: addOns as JobConfiguration['addOns'] ?? [],
+    });
 
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -67,7 +71,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 - Wood Type: ${woodDensity}
 - Hazards: ${hazards.join(', ') || 'None'}
 - Tree Health: ${treeHealth.join(', ') || 'Completely Healthy'}
-- Calculated Price Range: $${minPrice} to $${maxPrice}
+- Calculated Price Range: $${estimate.rangeLow.toLocaleString('en-US')} to $${estimate.rangeHigh.toLocaleString('en-US')}
 
 Based on these risks, generate exactly 3 powerful, authoritative, professional bullet points that the arborist can read or show directly to the homeowner to justify why this specific job commands this price premium. Focus on safety factors, advanced rigging equipment required, precision climbing liabilities, and potential property damage prevention. Keep it completely factual, objective, and clear. Do not include any introductory sentences or concluding text. Return ONLY the 3 bullet points.`;
 

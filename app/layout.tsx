@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Arborist Price Defenser',
+  title: 'Arborist Price Defender',
   description: 'Live on-site tree service pricing calculator',
 };
 
