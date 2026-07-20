@@ -153,6 +153,25 @@ function RiskBadge({
   );
 }
 
+function SwitchIndicator({ active }: { active: boolean }): JSX.Element {
+  return (
+    <span
+      className={[
+        'relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200',
+        active ? 'bg-green-600' : 'bg-neutral-600',
+      ].join(' ')}
+      aria-hidden="true"
+    >
+      <span
+        className={[
+          'inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200',
+          active ? 'translate-x-6' : 'translate-x-1',
+        ].join(' ')}
+      />
+    </span>
+  );
+}
+
 export default function PriceDefenderPage(): JSX.Element {
   const [config, setConfig] = useState<JobConfiguration>(DEFAULT_CONFIG);
   const [aiJustifications, setAiJustifications] = useState<string>('');
@@ -323,9 +342,9 @@ export default function PriceDefenderPage(): JSX.Element {
       <main
         className="min-h-0 flex-1 overflow-y-auto scroll-smooth px-4 pt-5"
       >
-        {/* Step 1: Size & Mass */}
+        {/* 1. Size & Mass */}
         <section className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-          <h2 className="mb-4 text-lg font-bold text-white">Step 1: Size & Mass</h2>
+          <h2 className="mb-4 text-lg font-bold text-white">1. Size & Mass</h2>
 
           <div className="mb-6">
             <div className="mb-3 flex items-baseline justify-between">
@@ -402,9 +421,9 @@ export default function PriceDefenderPage(): JSX.Element {
           </div>
         </section>
 
-        {/* Step 2: Surrounding Hazards */}
+        {/* 2. Surrounding Hazards */}
         <section className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-          <h2 className="mb-4 text-lg font-bold text-white">Step 2: Surrounding Hazards</h2>
+          <h2 className="mb-4 text-lg font-bold text-white">2. Surrounding Hazards</h2>
           <div className="grid grid-cols-1 gap-3">
             {HAZARD_OPTIONS.map((option) => {
               const active = config.hazards.includes(option.value);
@@ -416,42 +435,21 @@ export default function PriceDefenderPage(): JSX.Element {
                   className={[
                     'flex items-center justify-between rounded-xl px-5 py-5 text-left text-lg font-bold transition-all',
                     active
-                      ? 'bg-orange-600 text-white shadow-md ring-2 ring-white/40'
+                      ? 'bg-green-600 text-white shadow-md ring-2 ring-white/40'
                       : 'bg-neutral-800 text-neutral-300 active:bg-neutral-700',
                   ].join(' ')}
                 >
                   <span>{option.label}</span>
-                  <span
-                    className={[
-                      'flex h-8 w-8 items-center justify-center rounded-full text-base',
-                      active
-                        ? 'bg-white text-orange-600'
-                        : 'border-2 border-neutral-500 text-transparent',
-                    ].join(' ')}
-                    aria-hidden="true"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="h-5 w-5"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M20.707 6.707a1 1 0 0 0-1.414-1.414L9 15.586 4.707 11.293a1 1 0 0 0-1.414 1.414l5 5a1 1 0 0 0 1.414 0l11-11Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
+                  <SwitchIndicator active={active} />
                 </button>
               );
             })}
           </div>
         </section>
 
-        {/* Step 3: Tree Structural Health */}
+        {/* 3. Tree Structural Health */}
         <section className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-          <h2 className="mb-4 text-lg font-bold text-white">Step 3: Tree Structural Health</h2>
+          <h2 className="mb-4 text-lg font-bold text-white">3. Tree Structural Health</h2>
           <div className="grid grid-cols-1 gap-3">
             {HEALTH_OPTIONS.map((option) => {
               const active = config.treeHealth.includes(option.value);
@@ -463,42 +461,21 @@ export default function PriceDefenderPage(): JSX.Element {
                   className={[
                     'flex items-center justify-between rounded-xl px-5 py-5 text-left text-lg font-bold transition-all',
                     active
-                      ? 'bg-amber-600 text-white shadow-md ring-2 ring-white/40'
+                      ? 'bg-green-600 text-white shadow-md ring-2 ring-white/40'
                       : 'bg-neutral-800 text-neutral-300 active:bg-neutral-700',
                   ].join(' ')}
                 >
                   <span>{option.label}</span>
-                  <span
-                    className={[
-                      'flex h-8 w-8 items-center justify-center rounded-full text-base',
-                      active
-                        ? 'bg-white text-amber-600'
-                        : 'border-2 border-neutral-500 text-transparent',
-                    ].join(' ')}
-                    aria-hidden="true"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="h-5 w-5"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M20.707 6.707a1 1 0 0 0-1.414-1.414L9 15.586 4.707 11.293a1 1 0 0 0-1.414 1.414l5 5a1 1 0 0 0 1.414 0l11-11Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
+                  <SwitchIndicator active={active} />
                 </button>
               );
             })}
           </div>
         </section>
 
-        {/* Step 4: Access Rigging */}
+        {/* 4. Access Rigging */}
         <section className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-          <h2 className="mb-4 text-lg font-bold text-white">Step 4: Access Rigging</h2>
+          <h2 className="mb-4 text-lg font-bold text-white">4. Access Rigging</h2>
           <div className="grid grid-cols-2 gap-3">
             {ACCESS_OPTIONS.map((option) => {
               const active = config.accessLevel === option.value;
@@ -510,7 +487,7 @@ export default function PriceDefenderPage(): JSX.Element {
                   className={[
                     'rounded-xl px-3 py-5 text-base font-bold transition-colors',
                     active
-                      ? 'bg-blue-600 text-white shadow-md'
+                      ? 'bg-green-600 text-white shadow-md'
                         : 'bg-neutral-800 text-neutral-300 active:bg-neutral-700',
                   ].join(' ')}
                 >
@@ -535,33 +512,12 @@ export default function PriceDefenderPage(): JSX.Element {
                   className={[
                     'flex items-center justify-between rounded-xl px-5 py-5 text-left text-lg font-bold transition-all',
                     active
-                      ? 'bg-purple-600 text-white shadow-md ring-2 ring-white/40'
+                      ? 'bg-green-600 text-white shadow-md ring-2 ring-white/40'
                       : 'bg-neutral-800 text-neutral-300 active:bg-neutral-700',
                   ].join(' ')}
                 >
                   <span>{option.label}</span>
-                  <span
-                    className={[
-                      'flex h-8 w-8 items-center justify-center rounded-full text-base',
-                      active
-                        ? 'bg-white text-purple-600'
-                        : 'border-2 border-neutral-500 text-transparent',
-                    ].join(' ')}
-                    aria-hidden="true"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="h-5 w-5"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M20.707 6.707a1 1 0 0 0-1.414-1.414L9 15.586 4.707 11.293a1 1 0 0 0-1.414 1.414l5 5a1 1 0 0 0 1.414 0l11-11Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </span>
+                  <SwitchIndicator active={active} />
                 </button>
               );
             })}
@@ -631,7 +587,7 @@ export default function PriceDefenderPage(): JSX.Element {
 
           {isLoading ? (
             <div className="flex items-center gap-3 rounded-xl bg-neutral-700 px-4 py-3">
-              <span className="inline-block h-5 w-5 animate-pulse rounded-full bg-blue-400" />
+              <span className="inline-block h-5 w-5 animate-pulse rounded-full bg-green-400" />
               <span className="text-sm font-semibold text-white">AI Analyzing Risk Factors…</span>
             </div>
           ) : error ? (
